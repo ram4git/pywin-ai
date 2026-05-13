@@ -11,6 +11,8 @@ from config import settings
 from db.database import engine, SessionLocal, Base
 from db.models import Execution, ExecutionStatus
 
+if settings.log_file:
+    Path(settings.log_file).parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[logging.StreamHandler(), logging.FileHandler(settings.log_file, mode="a")] if settings.log_file else [logging.StreamHandler()])
 logger = logging.getLogger(__name__)
