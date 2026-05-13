@@ -1,0 +1,17 @@
+# win-auto/backend/requirements.txt
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+sqlalchemy==2.0.35
+alembic==1.13.0
+anthropic==0.40.0
+pywinauto==0.6.8
+pyperclip==1.9.0
+pyautogui==0.9.54
+mss==9.0.2
+Pillow==10.4.0
+pydantic-settings==2.5.0
+python-multipart==0.0.12
+sse-starlette==2.1.0
+pytest==8.3.0
+httpx==0.27.0
+pyinstaller==6.10.0
