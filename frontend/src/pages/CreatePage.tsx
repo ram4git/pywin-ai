@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react'
-import { Save, Square } from 'lucide-react'
+import { Save, Square, AlertTriangle } from 'lucide-react'
 import PromptEditor from '../components/PromptEditor'
 import PlanViewer, { type StepState } from '../components/PlanViewer'
 import CodeReviewDialog from '../components/CodeReviewDialog'
@@ -60,7 +60,7 @@ export default function CreatePage() {
       const r = await api.generate.refine({ prompt, current_plan: plan, failure: { step: failStep, error: failErr }, annotations })
       setPlan(r.plan); setCode(r.generated_code); setCodeValid(r.validation.is_valid); setValError(r.validation.error)
       setShowReview(true); setStatus('reviewing'); setFailStep(null)
-    } catch { setStatus('failed') }
+    } catch (e: unknown) { setStatus('failed'); setFailErr(e instanceof Error ? e.message : 'Refinement failed') }
   }, [prompt, plan, failStep, failErr])
 
   const handleSave = useCallback(async () => {
@@ -84,6 +84,16 @@ export default function CreatePage() {
         <div className="flex items-center justify-center gap-3">
           <span className="text-sm font-medium text-success">Completed!</span>
           <button onClick={() => setShowSave(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors"><Save size={16} /> Save Script</button>
+        </div>
+      )}
+      {(status === 'failed' || status === 'stopped') && !failStep && failErr && (
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-red-500/30 bg-red-500/10">
+          <AlertTriangle size={20} className="text-error shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-error">Generation Failed</p>
+            <p className="text-sm text-text-secondary mt-1">{failErr}</p>
+            <button onClick={() => { setStatus('idle'); setFailErr('') }} className="mt-2 text-xs text-primary hover:underline">Dismiss</button>
+          </div>
         </div>
       )}
       {(status === 'failed' || status === 'stopped') && failStep && (

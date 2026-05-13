@@ -1,7 +1,11 @@
 # win-auto/backend/services/llm_service.py
 import json
+import logging
+import re
 import anthropic
 from config import settings
+
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are a Windows desktop automation expert. Generate structured action plans for PyWinAuto.
 
@@ -54,6 +58,12 @@ class LLMService:
     def __init__(self):
         self.client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
 
+    def _parse_json(self, text: str) -> list[dict]:
+        cleaned = re.sub(r"^```(?:json)?\s*\n?", "", text.strip())
+        cleaned = re.sub(r"\n?```\s*$", "", cleaned)
+        logger.debug("LLM raw response (first 200 chars): %s", text[:200])
+        return json.loads(cleaned)
+
     def generate_plan(self, prompt: str) -> list[dict]:
         response = self.client.messages.create(
             model=settings.anthropic_model,
@@ -61,7 +71,7 @@ class LLMService:
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
-        return json.loads(response.content[0].text)
+        return self._parse_json(response.content[0].text)
 
     def refine_plan(
         self, prompt: str, current_plan: list[dict],
@@ -91,4 +101,4 @@ class LLMService:
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": messages_content}],
         )
-        return json.loads(response.content[0].text)
+        return self._parse_json(response.content[0].text)
