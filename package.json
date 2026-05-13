@@ -1,0 +1,17 @@
+{
+  "name": "win-auto",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "concurrently --names backend,frontend --prefix-colors blue,green \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && python main.py",
+    "dev:frontend": "cd frontend && yarn dev",
+    "install:all": "cd frontend && yarn install",
+    "build": "cd frontend && yarn build",
+    "test": "cd backend && python -m pytest tests/ -v",
+    "package": "python build/build.py"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
